@@ -29,6 +29,10 @@ vim.bo.expandtab = false
 vim.o.completeopt = 'menuone', 'noinsert'
 vim.o.mousemoveevent = true
 
+vim.api.nvim_set_keymap("i", "jj", "<ESC>", { noremap = true, silent = true })
+vim.g.mapleader = ","
+vim.g.maplocalleader = ","
+
 -- gui
 vim.o.guifont = 'PlemolJP Console NF:h13'
 if vim.g.neovide then
@@ -68,7 +72,7 @@ end
 if vim.fn.has('win32') == 1 or vim.fn.has('win64') == 1 or vim.fn.has('wsl') then
     vim.g.python3_host_prog = 'python3'
 elseif vim.fn.has('linux') then
-    vim.g.python3_host_prog = "/usr/bin/python3.11"
+    vim.g.python3_host_prog = "/usr/sbin/python3.13"
 end
 vim.cmd 'let g:loaded_perl_provider = 0'
 vim.cmd 'let g:loaded_ruby_provider = 0'
@@ -135,11 +139,51 @@ local plugins = {
     -- 'LuaLS/lua-language-server',
     'cdelledonne/vim-cmake',
     'github/copilot.vim',
-	{
-	    'lervag/vimtex',
-	    lazy = false,
-	},
+    {
+	'lervag/vimtex',
+	lazy = false,
+    },
+    'R-nvim/R.nvim',
+    'R-nvim/cmp-r',
+    {
+	"ibhagwan/fzf-lua",
+	-- optional for icon support
+	dependencies = { "nvim-tree/nvim-web-devicons" },
+	opts = {}
+    },
+    {
+	"hrsh7th/nvim-cmp",
+	config = function()
+	  local cmp = require("cmp")
+	  cmp.setup({
+	    sources = {{ name = "cmp_r" }},
+	    mapping = cmp.mapping.preset.insert({
+	      ['<CR>'] = cmp.mapping.confirm({ select = false }),
+	      -- During auto-completion, press <Tab> to select the next item.
+	      ['<Tab>'] = cmp.mapping(function(fallback)
+		if cmp.visible() then
+		  cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
+		elseif has_words_before() then
+		  cmp.complete()
+		else
+		  fallback()
+		end
+	      end, { 'i', 's' }),
+	      ['<S-Tab>'] = cmp.mapping(function(fallback)
+		if cmp.visible() then
+		  cmp.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
+		else
+		  fallback()
+		end
+	      end, { 'i', 's' }),
+	    }),
+	  })
+	  require("cmp_r").setup({ })
+	end,
+    },
+
 }
+
 if (vim.fn.has('wsl') == 1) then
     table.insert(plugins, {
     })
@@ -313,6 +357,7 @@ vim.api.nvim_set_keymap('v', '<leader>c', '"+y', { silent=true, noremap=true })
 vim.api.nvim_set_keymap('n', '<leader>v', '"+p', { silent=true, noremap=true }) 
 vim.api.nvim_set_keymap('v', '<leader>v', '"+p', { silent=true, noremap=true }) 
 vim.api.nvim_set_keymap('n', '<space>e', ':Neotree<CR>', { silent=true, noremap=true })
+vim.api.nvim_set_keymap('n', '<F5>', ':!uv run python %<CR>', { silent = false, noremap = true })
 
 ---
 --- Modify tab settings for LaTeX
@@ -326,3 +371,31 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.opt.expandtab = true
     end
 })
+
+-- fzf-lua setup
+require'fzf-lua'.setup({
+  'fzf-native',
+  winopts = {
+    height     = 0.85,     -- window height
+    width      = 0.80,     -- window width
+    row        = 0.35,     -- window row position (0=top, 1=bottom)
+    col        = 0.50,     -- window col position (0=left, 1=right)
+    border     = 'rounded', -- 'none', 'single', 'double', 'thicc' or 'rounded'
+    fullscreen = false,    -- start fullscreen?
+  },
+})
+
+vim.cmd [[
+highlight FzfLuaNormal guibg=#383850
+highlight FzfLuaBorder guibg=#383850
+]]
+
+vim.opt.winblend = 5
+
+vim.keymap.set('n', '<leader>e', "<cmd>lua require('fzf-lua').files()<CR>")
+vim.keymap.set('n', '<leader>g', "<cmd>lua require('fzf-lua').git_status()<CR>")
+vim.keymap.set('n', '<leader>b', "<cmd>lua require('fzf-lua').git_branches()<CR>")
+vim.keymap.set('n', '<leader>p', "<cmd>lua require('fzf-lua').grep()<CR>")
+vim.keymap.set('n', '<leader>/', "<cmd>lua require('fzf-lua').blines()<CR>")
+
+

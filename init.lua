@@ -161,21 +161,20 @@ local plugins = {
 	      ['<CR>'] = cmp.mapping.confirm({ select = false }),
 	      -- During auto-completion, press <Tab> to select the next item.
 	      ['<Tab>'] = cmp.mapping(function(fallback)
-		if cmp.visible() then
-		  cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
-		elseif has_words_before() then
-		  cmp.complete()
-		else
-		  fallback()
-		end
-	      end, { 'i', 's' }),
-	      ['<S-Tab>'] = cmp.mapping(function(fallback)
-		if cmp.visible() then
-		  cmp.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
-		else
-		  fallback()
-		end
-	      end, { 'i', 's' }),
+		  if cmp.visible() then
+		    cmp.select_next_item() -- 候補が表示されているときだけ、次の候補を選択
+		  else
+		    fallback() -- それ以外は Copilot などに任せる (fallback)
+		  end
+		end, { 'i', 's' }),
+
+		['<S-Tab>'] = cmp.mapping(function(fallback)
+		  if cmp.visible() then
+		    cmp.select_prev_item() -- Shift+Tab で前の候補を選択 (必要なら)
+		  else
+		    fallback()
+		  end
+		end, { 'i', 's' }),
 	    }),
 	  })
 	  require("cmp_r").setup({ })

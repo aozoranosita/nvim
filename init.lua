@@ -30,7 +30,7 @@ vim.o.mousemoveevent = true
 vim.api.nvim_set_keymap("i", "jj", "<ESC>", { noremap = true, silent = true })
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
-vim.o.shell = '/bin/fish'
+vim.o.shell = 'fish'
 
 -- gui
 vim.o.guifont = 'PlemolJP Console NF:h13'

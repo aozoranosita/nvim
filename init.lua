@@ -225,19 +225,6 @@ vim.g.vimtex_compiler_latexmk = {
     }
 }
 
-local kopts = {noremap = true, silent = true}
-
-vim.api.nvim_set_keymap('n', 'n',
-    [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>]],
-    kopts)
-vim.api.nvim_set_keymap('n', 'N',
-    [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>]],
-    kopts)
-vim.api.nvim_set_keymap('n', '*', [[*<Cmd>lua require('hlslens').start()<CR>]], kopts)
-vim.api.nvim_set_keymap('n', '#', [[#<Cmd>lua require('hlslens').start()<CR>]], kopts)
-vim.api.nvim_set_keymap('n', 'g*', [[g*<Cmd>lua require('hlslens').start()<CR>]], kopts)
-vim.api.nvim_set_keymap('n', 'g#', [[g#<Cmd>lua require('hlslens').start()<CR>]], kopts)
-
 -- C/C++ (Mac 用の設定例：clang を使用)
 if vim.fn.has('macunix') == 1 then
     vim.cmd('set makeprg=clang')
@@ -272,26 +259,6 @@ keyset("n", "<leader>f", "<Plug>(coc-format-selected)", {silent = true})
 
 vim.cmd("command! -nargs=0 Prettier :CocCommand prettier.forceFormatDocument")
 
---
--- Key Maps
---
-vim.api.nvim_set_keymap('i', '<CR>', '<C-y>', { noremap = true })
-vim.cmd 'inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\\<CR>"'
-vim.cmd [[inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<C-r>=coc#on_enter()\<CR>" ]]
-vim.api.nvim_set_keymap('n', ']b', ':bnext<CR>', { silent = true, noremap = true })
-vim.api.nvim_set_keymap('n', '[b', ':bprev<CR>', { silent = true, noremap = true })
-vim.api.nvim_set_keymap('n', 'M-v', '<C-v>', { noremap = true })
-vim.api.nvim_set_keymap('t', '<ESC>', '<C-\\><C-n>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<C-s>', ':MarkdownPreview<CR>', { silent = true, noremap = true })
-vim.api.nvim_set_keymap('n', '<M-s>', ':MarkdownPreviewStop<CR>', { silent = true, noremap = true })
-vim.api.nvim_set_keymap('n', '<C-p>', ':MarkdownPreviewToggle<CR>', { silent = true, noremap = true })
-vim.api.nvim_set_keymap('v', '<leader>c', '"+y', { silent = true, noremap = true }) 
-vim.api.nvim_set_keymap('n', '<leader>v', '"+p', { silent = true, noremap = true }) 
-vim.api.nvim_set_keymap('v', '<leader>v', '"+p', { silent = true, noremap = true }) 
-vim.api.nvim_set_keymap('n', '<space>e', ':Neotree<CR>', { silent = true, noremap = true })
-vim.api.nvim_set_keymap('n', '<F5>', ':!uv run python %<CR>', { silent = false, noremap = true })
-vim.api.nvim_set_keymap('n', '<space>c', ':CopilotChatOpen<CR>', { silent = true, noremap = true }) 
-
 ---
 --- Modify tab settings for LaTeX
 ---
@@ -325,9 +292,45 @@ highlight FzfLuaBorder guibg=#383850
 
 vim.opt.winblend = 5
 
-vim.keymap.set('n', '<leader>e', "<cmd>lua require('fzf-lua').files()<CR>")
-vim.keymap.set('n', '<leader>g', "<cmd>lua require('fzf-lua').git_status()<CR>")
-vim.keymap.set('n', '<leader>b', "<cmd>lua require('fzf-lua').git_branches()<CR>")
-vim.keymap.set('n', '<leader>p', "<cmd>lua require('fzf-lua').grep()<CR>")
-vim.keymap.set('n', '<leader>/', "<cmd>lua require('fzf-lua').blines()<CR>")
+
+-- Normal モードのマッピング（すべて silent）
+local normal_maps = {
+  { '<space>c', ':CopilotChatOpen<CR>' },
+  { ']b',        ':bnext<CR>' },
+  { '[b',        ':bprev<CR>' },
+  { 'M-v',       '<C-v>' },
+  { '<C-s>',     ':MarkdownPreview<CR>' },
+  { '<M-s>',     ':MarkdownPreviewStop<CR>' },
+  { '<C-p>',     ':MarkdownPreviewToggle<CR>' },
+  { '<leader>v', '"+p' },
+  { '<space>e',  ':Neotree<CR>' },
+  { '<F5>',      ':!uv run python %<CR>' },
+  { '<leader>e', "<cmd>lua require('fzf-lua').files()<CR>" },
+  { '<leader>g', "<cmd>lua require('fzf-lua').git_status()<CR>" },
+  { '<leader>b', "<cmd>lua require('fzf-lua').git_branches()<CR>" },
+  { '<leader>p', "<cmd>lua require('fzf-lua').grep()<CR>" },
+  { '<leader>/', "<cmd>lua require('fzf-lua').blines()<CR>" },
+    -- hlslens 関連のマッピング
+  { 'n',  "<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>" },
+  { 'N',  "<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>" },
+  { '*',  "*<Cmd>lua require('hlslens').start()<CR>" },
+  { '#',  "#<Cmd>lua require('hlslens').start()<CR>" },
+  { 'g*', "g*<Cmd>lua require('hlslens').start()<CR>" },
+  { 'g#', "g#<Cmd>lua require('hlslens').start()<CR>" },
+}
+
+for _, map in ipairs(normal_maps) do
+  vim.keymap.set('n', map[1], map[2], { silent = true })
+end
+
+-- Visual モードのマッピング（すべて silent）
+local visual_maps = {
+  { '<leader>c', '"+y' },
+  { '<leader>v', '"+p' },
+}
+
+for _, map in ipairs(visual_maps) do
+  vim.keymap.set('v', map[1], map[2], { silent = true })
+end
+
 

@@ -1,5 +1,28 @@
 ## nvim_config
 my neovim configuration on MacOS
+use this within tmux or color collapse
+
+## usage
+### keybindings
+<leader> is set to `,` by default
+<space>e to open Neotree
+<leader>e to fussy findings
+<space>c to CopilotChatOpen
+<leader>rf to start R session
+<leader>d to run R line under cursor
+<leader>m3j to run 3 lines (m means motion, like `m)`to run cursor to end of the section)
+<leader>bb to run between markers
+<F5> for `uv run python` 
+
+### command
+`:te` to open terminal
+<Tab> to accept copilot suggestion
+<CR> to accept COC suggestion
+select coc suggestion with arrow keys <up> and <down>
+
+## Prerequisites
+neovim >= 0.10.0
+clang, python3, R, fzf, tmux, fish
 
 ## Installation
 1. Clone this repository to your ~/.config/ directory
@@ -35,14 +58,8 @@ fisher install oh-my-fish/theme-bobthefish
 fisher install jethrokuan/z
 fisher install jethrokuan/fzf
 ```
-4. for theme-boththefish, you need to install powerline fonts and set the font in your terminal( including poerline fonts)
-```bash
-# clone
-git clone https://github.com/powerline/fonts.git --depth=1
-# install
-cd fonts
-./install.sh
-# clean-up a bit
-cd ..
-rm -rf fonts
+4. install nerd font for neotree and theme-bobthefish
+```fish
+brew install --cask font-hack-nerd-font
 ```
+in terninal settings, select this font

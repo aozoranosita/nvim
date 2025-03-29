@@ -290,6 +290,7 @@ vim.api.nvim_set_keymap('n', '<leader>v', '"+p', { silent = true, noremap = true
 vim.api.nvim_set_keymap('v', '<leader>v', '"+p', { silent = true, noremap = true }) 
 vim.api.nvim_set_keymap('n', '<space>e', ':Neotree<CR>', { silent = true, noremap = true })
 vim.api.nvim_set_keymap('n', '<F5>', ':!uv run python %<CR>', { silent = false, noremap = true })
+vim.api.nvim_set_keymap('n', '<space>c', ':CopilotChatOpen<CR>', { silent = true, noremap = true }) 
 
 ---
 --- Modify tab settings for LaTeX

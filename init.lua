@@ -97,7 +97,7 @@ local plugins = {
     },
     'lewis6991/gitsigns.nvim',
     'kevinhwang91/nvim-hlslens',
-    'cdelledonne/vim-cmake',
+    --'cdelledonne/vim-cmake',
     'github/copilot.vim',
     {
 	'lervag/vimtex',
@@ -193,9 +193,9 @@ require('lualine').setup {
 }
 
 -- vim-cmake
-vim.api.nvim_command('command! CCMakeGenerate execute "!cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja -B build" | execute "!cp ./build/compile_commands.json ./"')
-vim.api.nvim_command('command! CCMakeBuild execute "!cmake --build build"')
-vim.cmd "autocmd FileType c,cpp nnoremap <silent> <F7> :CCMakeBuild<CR>"
+--vim.api.nvim_command('command! CCMakeGenerate execute "!cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja -B build" | execute "!cp ./build/compile_commands.json ./"')
+--vim.api.nvim_command('command! CCMakeBuild execute "!cmake --build build"')
+--vim.cmd "autocmd FileType c,cpp nnoremap <silent> <F7> :CCMakeBuild<CR>"
 
 -- nvim-treesitter
 require('nvim-treesitter.configs').setup {

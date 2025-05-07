@@ -110,7 +110,14 @@ local plugins = {
       { "nvim-lua/plenary.nvim", branch = "master" },
 	},
     build = "make tiktoken", -- Only on MacOS or Linux
-    opts = {},
+    opts = {
+	model = "claude-3.7-sonnet-thought",
+	window = {
+	    layout = 'vertical', -- 'vertical', 'horizontal', 'float', 'replace', or a function that returns the layout
+	    width = 0.3,
+	    height = 0.5,
+	},
+    },
     },
     'R-nvim/R.nvim',
     'R-nvim/cmp-r',

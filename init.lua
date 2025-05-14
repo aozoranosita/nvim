@@ -1,6 +1,6 @@
 -- General
 vim.bo.fileencoding = 'utf-8'
--- vim.o.fileencodings = 'sjis', 'utf-8'
+-- vim.o.fileencodings = 'sjis', 'utf-4'
 vim.o.backup = false
 vim.bo.swapfile = false
 vim.o.autoread = true
@@ -12,19 +12,20 @@ vim.wo.number = true
 vim.o.laststatus = 2
 vim.o.termguicolors = true
 vim.o.background = 'dark'
-vim.o.showmode = false
+vim.o.showmode = true
 vim.wo.cursorline = true
 vim.bo.syntax = 'ON'
 vim.o.hlsearch = true
 vim.o.incsearch = true
 vim.bo.smartindent = true
 vim.bo.autoindent = true
-vim.bo.tabstop = 8
+vim.bo.tabstop = 4
 vim.bo.softtabstop = 4
 vim.bo.shiftwidth = 4
 vim.bo.expandtab = false
 vim.o.completeopt = 'menuone', 'noinsert'
 vim.o.mousemoveevent = true
+
 
 vim.api.nvim_set_keymap("i", "jj", "<ESC>", { noremap = true, silent = true })
 vim.g.mapleader = ","
@@ -122,7 +123,7 @@ else
 	    },
 	build = "make tiktoken", -- Only on MacOS or Linux
 	opts = {
-	    model = "claude-3.7-sonnet-thought",
+	    model = "gpt-4.1",
 	    window = {
 		layout = 'vertical', -- 'vertical', 'horizontal', 'float', 'replace', or a function that returns the layout
 		width = 0.3,
@@ -225,6 +226,14 @@ else
 	    disable = { "latex" },
 	    additional_vim_regex_highlighting = false,
 	},
+	ensure_installed = {
+	    "python",
+	    "R",
+	    "lua",
+	    "markdown",
+		"rnoweb", 
+		"yaml"
+	}
     }
 
     require('gitsigns').setup()
@@ -261,6 +270,9 @@ else
     keyset("i", "<TAB>", 'coc#pum#visible() ? coc#pum#next(1) : "<Tab>"', opts)
     keyset("i", "<S-TAB>", [[coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"]], opts)
     keyset("i", "<CR>", [[coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"]], opts)
+	-- Copilot configuration
+	vim.g.copilot_no_tab_map = true
+	keyset("i", "<CR>", 'copilot#Accept("<CR>")', {silent = true, expr = true})
     keyset("i", "<c-j>", "<Plug>(coc-snippets-expand-jump)")
     keyset("i", "<c-space>", "coc#refresh()", {silent = true, expr = true})
 
@@ -328,7 +340,12 @@ else
       { '<leader>b', "<cmd>lua require('fzf-lua').git_branches()<CR>" },
       { '<leader>p', "<cmd>lua require('fzf-lua').grep()<CR>" },
       { '<leader>/', "<cmd>lua require('fzf-lua').blines()<CR>" },
-	-- hlslens 関連のマッピング
+      -- Window resizing with Ctrl+Shift+HJKL
+      { '<C-S-h>', ':vertical resize -5<CR>' },
+      { '<C-S-l>', ':vertical resize +5<CR>' },
+      { '<C-S-j>', ':resize +5<CR>' },
+      { '<C-S-k>', ':resize -5<CR>' },
+	  -- hlslens 関連のマッピング
       { 'n',  "<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>" },
       { 'N',  "<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>" },
       { '*',  "*<Cmd>lua require('hlslens').start()<CR>" },

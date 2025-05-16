@@ -22,7 +22,7 @@ vim.bo.autoindent = true
 vim.bo.tabstop = 4
 vim.bo.softtabstop = 4
 vim.bo.shiftwidth = 4
-vim.bo.expandtab = false
+vim.bo.expandtab = true
 vim.o.completeopt = 'menuone', 'noinsert'
 vim.o.mousemoveevent = true
 
@@ -267,14 +267,9 @@ else
     end
 
     local opts = {silent = true, noremap = true, expr = true, replace_keycodes = false}
-    keyset("i", "<TAB>", 'coc#pum#visible() ? coc#pum#next(1) : "<Tab>"', opts)
-    keyset("i", "<S-TAB>", [[coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"]], opts)
+    keyset("i", "<C-j>", 'coc#pum#visible() ? coc#pum#next(1) : "<C-j>"', opts)
+    keyset("i", "<C-k>", 'coc#pum#visible() ? coc#pum#prev(1) : "<C-k>"', opts)
     keyset("i", "<CR>", [[coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"]], opts)
-	-- Copilot configuration
-	vim.g.copilot_no_tab_map = true
-	keyset("i", "<CR>", 'copilot#Accept("<CR>")', {silent = true, expr = true})
-    keyset("i", "<c-j>", "<Plug>(coc-snippets-expand-jump)")
-    keyset("i", "<c-space>", "coc#refresh()", {silent = true, expr = true})
 
     vim.api.nvim_create_augroup("CocGroup", {})
     vim.api.nvim_create_autocmd("CursorHold", {
@@ -341,10 +336,8 @@ else
       { '<leader>p', "<cmd>lua require('fzf-lua').grep()<CR>" },
       { '<leader>/', "<cmd>lua require('fzf-lua').blines()<CR>" },
       -- Window resizing with Ctrl+Shift+HJKL
-      { '<C-S-h>', ':vertical resize -5<CR>' },
-      { '<C-S-l>', ':vertical resize +5<CR>' },
-      { '<C-S-j>', ':resize +5<CR>' },
-      { '<C-S-k>', ':resize -5<CR>' },
+      { '<C-h>', ':vertical resize +5<CR>' },
+      { '<C-j>', ':resize +5<CR>' },
 	  -- hlslens 関連のマッピング
       { 'n',  "<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>" },
       { 'N',  "<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>" },
@@ -368,4 +361,16 @@ else
       vim.keymap.set('v', map[1], map[2], { silent = true })
     end
 
+	-- Rファイル用: Ctrl+Shift+< で <- 挿入
+	vim.api.nvim_create_autocmd("FileType", {
+	  pattern = "r",
+	  callback = function()
+		vim.keymap.set('i', '<C-,>', ' <- ', { buffer = true })
+		vim.keymap.set('i', '<C-.>', ' |> ', { buffer = true })
+        vim.bo.tabstop = 2
+        vim.bo.shiftwidth = 2
+        vim.bo.softtabstop = 2
+        vim.bo.expandtab = true
+	  end
+	})
 end

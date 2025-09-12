@@ -32,6 +32,7 @@ vim.g.mapleader = ","
 vim.g.maplocalleader = ","
 vim.o.shell = 'fish'
 
+
 if vim.g.vscode then
     vim.g.vscode_style = 'dark'
     vim.g.vscode_transparent = true
@@ -43,6 +44,20 @@ if vim.g.vscode then
     vim.g.vscode_italic_numbers = true
     vim.g.vscode_italic_strings = true
     vim.g.vscode_italic_types = true
+    -- Lazy
+    local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
+    if not vim.loop.fs_stat(lazypath) then
+      vim.fn.system({
+	'git',
+	'clone',
+	'--filter=blob:none',
+	'https://github.com/folke/lazy.nvim.git',
+	'--branch=stable', -- latest stable release
+	lazypath,
+      })
+    end
+    vim.opt.rtp:prepend(lazypath)
+
 else
     -- gui
     vim.o.guifont = 'PlemolJP Console NF:h13'
@@ -166,6 +181,12 @@ else
 	      require("cmp_r").setup({ })
 	    end,
 	},
+      {
+        "tversteeg/registers.nvim",
+        config = function()
+          require("registers").setup()
+        end,
+      },
     }
 
     require('lazy').setup(plugins)

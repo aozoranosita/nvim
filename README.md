@@ -37,9 +37,8 @@ Update your package database and install the required tools using pacman:
 ```Bash
 sudo pacman -Syu fzf r gcc uv
 ```
-    Note for WSL users: > - This config uses SumatraPDF installed on the Windows host as the TeX viewer.
-
-        To share the clipboard between Neovim (WSL) and Windows, ensure win32yank.exe is installed on your Windows system and accessible via your WSL $PATH.
+> **Note for WSL users**: > - This config uses SumatraPDF installed on the Windows host as the TeX viewer.
+    To share the clipboard between Neovim (WSL) and Windows, ensure win32yank.exe is installed on your Windows system and accessible via your WSL $PATH.
 
 #### 🪟 Windows
 
@@ -48,7 +47,7 @@ Install the required tools using Scoop:
 # Install core tools, uv, and SumatraPDF
 scoop install fzf gcc uv sumatrapdf
 ```
-    Note: Please install R from the official CRAN website. This config uses SumatraPDF as the default TeX viewer.
+> **Note**: Please install R from the official CRAN website. This config uses SumatraPDF as the default TeX viewer.
 
 ### 3. R Setup
 Start an R session in your terminal and install the required packages for the R language server and plotting:

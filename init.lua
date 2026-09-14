@@ -108,11 +108,10 @@ else
     vim.opt.rtp:prepend(lazypath)
 
     local plugins = {
-        { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate' },
+        { 'nvim-treesitter/nvim-treesitter', branch = 'main', build = ':TSUpdate' },
         { "folke/tokyonight.nvim", lazy = false, priority = 1000, opts = {} },
         { 'nvim-lualine/lualine.nvim', dependencies = { 'nvim-tree/nvim-web-devicons', opt = true } },
         { 'akinsho/bufferline.nvim', version = '*', dependencies = 'nvim-tree/nvim-web-devicons' },
-        { 'neoclide/coc.nvim', branch = 'release', dependencies = { 'pappasam/coc-jedi' } },
         {
             "nvim-neo-tree/neo-tree.nvim",
             branch = "v3.x",
@@ -129,38 +128,151 @@ else
         },
         'lewis6991/gitsigns.nvim',
         'kevinhwang91/nvim-hlslens',
-        'github/copilot.vim',
         { 'lervag/vimtex', lazy = false },
-        {
-            "CopilotC-Nvim/CopilotChat.nvim",
-            dependencies = { { "github/copilot.vim" }, { "nvim-lua/plenary.nvim", branch = "master" } },
-            build = "make tiktoken", -- Mac/Linux用 (Windowsでは動作しないが無視される)
-            opts = {
-                model = "gpt-4", -- 修正: 4.1は存在しないため一般的な4へ
-                window = { layout = 'vertical', width = 0.3, height = 0.5 },
-            },
-        },
         'R-nvim/R.nvim',
-        'R-nvim/cmp-r',
         { "ibhagwan/fzf-lua", dependencies = { "nvim-tree/nvim-web-devicons" }, opts = {} },
         {
             "hrsh7th/nvim-cmp",
+            dependencies = {
+                "hrsh7th/cmp-nvim-lsp",
+                "hrsh7th/cmp-buffer",
+                "hrsh7th/cmp-path",
+            },
             config = function()
                 local cmp = require("cmp")
+
                 cmp.setup({
-                    sources = {{ name = "cmp_r" }},
+                    snippet = {
+                        expand = function(args)
+                            -- LSPのsnippet展開に対応。
+                            -- 現在は専用snippetエンジンを使っていないため、
+                            -- snippet本文をそのまま展開する。
+                            vim.snippet.expand(args.body)
+                        end,
+                    },
+                    sources = cmp.config.sources({
+                        { name = "nvim_lsp" },
+                    }, {
+                        { name = "buffer" },
+                        { name = "path" },
+                    }),
                     mapping = cmp.mapping.preset.insert({
-                        ['<CR>'] = cmp.mapping.confirm({ select = false }),
-                        ['<Tab>'] = cmp.mapping(function(fallback) if cmp.visible() then cmp.select_next_item() else fallback() end end, { 'i', 's' }),
-                        ['<S-Tab>'] = cmp.mapping(function(fallback) if cmp.visible() then cmp.select_prev_item() else fallback() end end, { 'i', 's' }),
+                        ["<CR>"] = cmp.mapping.confirm({ select = false }),
+                        ["<Tab>"] = cmp.mapping(function(fallback)
+                            if cmp.visible() then
+                                cmp.select_next_item()
+                            else
+                                fallback()
+                            end
+                        end, { "i", "s" }),
+                        ["<S-Tab>"] = cmp.mapping(function(fallback)
+                            if cmp.visible() then
+                                cmp.select_prev_item()
+                            else
+                                fallback()
+                            end
+                        end, { "i", "s" }),
+                        ["<C-j>"] = cmp.mapping(function(fallback)
+                            if cmp.visible() then
+                                cmp.select_next_item()
+                            else
+                                fallback()
+                            end
+                        end, { "i", "s" }),
+                        ["<C-k>"] = cmp.mapping(function(fallback)
+                            if cmp.visible() then
+                                cmp.select_prev_item()
+                            else
+                                fallback()
+                            end
+                        end, { "i", "s" }),
                     }),
                 })
-                require("cmp_r").setup({})
+
             end,
         },
-        { "tversteeg/registers.nvim", config = function() require("registers").setup() end },
-    }
+        {
+            "williamboman/mason.nvim",
+            build = ":MasonUpdate",
+            opts = {},
+        },
+        {
+            "williamboman/mason-lspconfig.nvim",
+            dependencies = {
+                "williamboman/mason.nvim",
+                "neovim/nvim-lspconfig",
+            },
+            opts = {
+                ensure_installed = { "basedpyright", "rust_analyzer" },
+            },
+        },
+        {
+            "neovim/nvim-lspconfig",
+            dependencies = {
+                "hrsh7th/cmp-nvim-lsp",
+                "williamboman/mason.nvim",
+                "williamboman/mason-lspconfig.nvim",
+            },
+            config = function()
+                local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
+                vim.lsp.config("basedpyright", {
+                    capabilities = capabilities,
+                })
+
+                vim.lsp.config("rust_analyzer", {
+                    capabilities = capabilities,
+                })
+
+                vim.lsp.enable({ "basedpyright", "rust_analyzer" })
+
+                -- LSPの標準キーマップ。
+                -- hoverは自動表示せず、Kで手動表示する。
+                vim.api.nvim_create_autocmd("LspAttach", {
+                    callback = function(event)
+                        local opts = { buffer = event.buf, silent = true }
+
+                        vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+                        vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+                        vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+                        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+                        vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+                    end,
+                })
+            end,
+        },
+    {
+        'MeanderingProgrammer/render-markdown.nvim',
+        dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.nvim' },            -- if you use the mini.nvim suite
+        ---@module 'render-markdown'
+        ---@type render.md.UserConfig
+        opts = {
+            file_types = {'markdown'},
+        },
+    },
+    {
+      "hat0uma/csvview.nvim",
+      ---@module "csvview"
+      ---@type CsvView.Options
+      opts = {
+        parser = { comments = { "#", "//" } },
+        keymaps = {
+          -- Text objects for selecting fields
+          textobject_field_inner = { "if", mode = { "o", "x" } },
+          textobject_field_outer = { "af", mode = { "o", "x" } },
+          -- Excel-like navigation:
+          -- Use <Tab> and <S-Tab> to move horizontally between fields.
+          -- Use <Enter> and <S-Enter> to move vertically between rows and place the cursor at the end of the field.
+          -- Note: In terminals, you may need to enable CSI-u mode to use <S-Tab> and <S-Enter>.
+          jump_next_field_end = { "<Tab>", mode = { "n", "v" } },
+          jump_prev_field_end = { "<S-Tab>", mode = { "n", "v" } },
+          jump_next_row = { "<Enter>", mode = { "n", "v" } },
+          jump_prev_row = { "<S-Enter>", mode = { "n", "v" } },
+        },
+      },
+      cmd = { "CsvViewEnable", "CsvViewDisable", "CsvViewToggle" },
+    },
+    }
     require('lazy').setup(plugins)
 
     -- ==============================================================================
@@ -191,12 +303,18 @@ else
     }
 
     -- Treesitter
-    require('nvim-treesitter.configs').setup {
-        sync_install = false, auto_install = true, ignore_install = {},
-        highlight = { enable = true, disable = { "latex" }, additional_vim_regex_highlighting = false },
-        ensure_installed = { "python", "r", "lua", "markdown", "yaml" } -- 修正: Rは大文字エラー回避
-    }
+    -- Treesitter (main branch API)
+    require('nvim-treesitter').setup {}
+    require('nvim-treesitter').install({ "python", "rust", "r", "lua", "markdown", "markdown_inline", "yaml", "comment" })
 
+    vim.api.nvim_create_autocmd('FileType', {
+        pattern = { 'python', 'rust', 'r', 'lua', 'markdown', 'yaml' }, -- latexは除外
+        callback = function()
+            vim.treesitter.start()
+            vim.wo[0][0].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+            vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end,
+    })
     require('gitsigns').setup()
     require('hlslens').setup()
 
@@ -226,29 +344,6 @@ else
     ]]
     vim.opt.winblend = 5
 
-    -- ==============================================================================
-    -- 7. Coc.nvim Setup
-    -- ==============================================================================
-    local keyset = vim.keymap.set
-    function _G.check_back_space()
-        local col = vim.fn.col('.') - 1
-        return col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') ~= nil
-    end
-
-    local opts = {silent = true, noremap = true, expr = true, replace_keycodes = false}
-    keyset("i", "<C-j>", 'coc#pum#visible() ? coc#pum#next(1) : "<C-j>"', opts)
-    keyset("i", "<C-k>", 'coc#pum#visible() ? coc#pum#prev(1) : "<C-k>"', opts)
-    keyset("i", "<CR>", [[coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"]], opts)
-
-    vim.api.nvim_create_augroup("CocGroup", {})
-    vim.api.nvim_create_autocmd("CursorHold", {
-        group = "CocGroup", command = "silent call CocActionAsync('highlight')", desc = "Highlight symbol under cursor on CursorHold"
-    })
-
-    keyset("n", "<leader>rn", "<Plug>(coc-rename)", {silent = true})
-    keyset("x", "<leader>f", "<Plug>(coc-format-selected)", {silent = true})
-    keyset("n", "<leader>f", "<Plug>(coc-format-selected)", {silent = true})
-    vim.cmd("command! -nargs=0 Prettier :CocCommand prettier.forceFormatDocument")
 
     -- ==============================================================================
     -- 8. Auto Commands
@@ -275,11 +370,17 @@ else
         end
     })
 
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = "csv",
+        callback = function()
+            vim.cmd('CsvViewEnable')
+        end,
+    })
+
     -- ==============================================================================
     -- 9. Keymaps (Normal / Visual)
     -- ==============================================================================
     local normal_maps = {
-        { '<space>c', ':CopilotChatOpen<CR>' },
         { ']b', ':bnext<CR>' },
         { '[b', ':bprev<CR>' },
         { 'M-v', '<C-v>' },
@@ -289,11 +390,12 @@ else
         { '<leader>v', '"+p' },
         { '<space>e', ':Neotree<CR>' },
         { '<F5>', ':!uv run python %<CR>' },
-        { '<leader>e', "<cmd>lua require('fzf-lua').files()<CR>" },
+        { '<leader>f', "<cmd>lua require('fzf-lua').files()<CR>" },
         { '<leader>g', "<cmd>lua require('fzf-lua').git_status()<CR>" },
         { '<leader>b', "<cmd>lua require('fzf-lua').git_branches()<CR>" },
         { '<leader>p', "<cmd>lua require('fzf-lua').grep()<CR>" },
         { '<leader>/', "<cmd>lua require('fzf-lua').blines()<CR>" },
+        { '<leader>e', "<cmd>lua vim.diagnostic.open_float()<CR>" },
         { '<C-h>', ':vertical resize +5<CR>' },
         { '<C-j>', ':resize +5<CR>' },
         { 'n', "<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>" },
@@ -317,3 +419,4 @@ else
         vim.keymap.set('v', map[1], map[2], { silent = true })
     end
 end
+

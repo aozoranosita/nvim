@@ -5,8 +5,11 @@
       "enableNerdfont": true
     }
   },
-  "languageserver": {
-  },
+  "languageserver": {},
   "snippets.ultisnips.pythonPrompt": false,
   "preferences.formatOnType": true,
+
+  "hover.target": "echo",
+  "hover.autoHide": true,
+  "signature.enable": false
 }

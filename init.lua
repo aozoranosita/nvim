@@ -41,6 +41,7 @@ vim.bo.shiftwidth = 4
 vim.bo.expandtab = true
 vim.o.completeopt = 'menuone,noinsert' -- 修正: 文字列で連結
 vim.o.mousemoveevent = true
+vim.o.winborder = "rounded"
 
 -- OSごとの設定を反映
 vim.o.shell = os_settings.shell
@@ -211,7 +212,7 @@ else
             dependencies = {
                 "hrsh7th/cmp-nvim-lsp",
                 "williamboman/mason.nvim",
-                "williamboman/mason-lspconfig.nvim",
+                "mason-org/mason-lspconfig.nvim"
             },
             config = function()
                 local capabilities = require("cmp_nvim_lsp").default_capabilities()
@@ -224,8 +225,6 @@ else
                     capabilities = capabilities,
                 })
 
-                vim.lsp.enable({ "basedpyright", "rust_analyzer" })
-
                 -- LSPの標準キーマップ。
                 -- hoverは自動表示せず、Kで手動表示する。
                 vim.api.nvim_create_autocmd("LspAttach", {
@@ -237,6 +236,11 @@ else
                         vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
                         vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
                         vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+                        vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, opts)
+                        vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, opts)
+                       if event.data.client_id and vim.lsp.get_client_by_id(event.data.client_id).server_capabilities.inlayHintProvider then
+                           vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+                       end
                     end,
                 })
             end,

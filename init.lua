@@ -422,5 +422,19 @@ else
     for _, map in ipairs(visual_maps) do
         vim.keymap.set('v', map[1], map[2], { silent = true })
     end
+
+    -- { + Enter で } を自動補完し、インデントした行にカーソルを置く
+    vim.keymap.set("i", "<CR>", function()
+      local line = vim.api.nvim_get_current_line()
+      local col = vim.api.nvim_win_get_cursor(0)[2]
+      local before = line:sub(1, col)
+      local after = line:sub(col + 1)
+
+      -- カーソル直前が { で、直後が空 (または空白のみ) のときだけ補完
+      if before:match("{%s*$") and after:match("^%s*$") then
+        return "<CR>}<Esc>O"
+      end
+      return "<CR>"
+    end, { expr = true, noremap = true, desc = "Auto close braces on Enter" })
 end
 
